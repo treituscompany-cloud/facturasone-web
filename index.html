@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FacturasOne</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="FacturasOne: facturación electrónica CFDI 4.0, Carta Porte, complementos de pago y nómina, conectada a tu ERP de logística.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Layout: a single dark field. Light fibers (operations) converge into one glass CFDI; every section below is a facet of that one document. */
+:root{
+  --ink:#07060D;          /* page ground */
+  --ink-2:#0E0C18;        /* raised surfaces */
+  --glass:rgba(255,255,255,.035);
+  --line:rgba(205,190,255,.11);
+  --line-2:rgba(205,190,255,.22);
+  --fg:#EFEBFA;
+  --muted:#9D96B8;
+  --violet:#9C7CFF;
+  --orchid:#E68BFF;
+  --mint:#62F0B5;         /* semantic: timbrado OK */
+  --f-display:"Geist",ui-sans-serif,system-ui,sans-serif;
+  --f-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --f-mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gut:max(16px,env(safe-area-inset-left,0px));
+  --gut-r:max(16px,env(safe-area-inset-right,0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--ink);overflow-x:clip}
+body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--f-display);font-size:16px;line-height:1.6;font-weight:350;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:90;background:var(--ink)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--violet);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-weight:400;letter-spacing:-.035em;line-height:1.02;margin:0;text-wrap:balance}
+p{margin:0}
+em,.serif{font-family:var(--f-serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
+.wrap{max-width:1240px;margin:0 auto;padding-left:var(--gut);padding-right:var(--gut-r)}
+.wrap>*{min-width:0}
+.mono{font-family:var(--f-mono);font-size:12px;letter-spacing:.02em}
+.tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--violet);box-shadow:0 0 12px var(--violet)}
+.grad{background:linear-gradient(100deg,var(--fg) 10%,var(--violet) 55%,var(--orchid) 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Buttons */
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 22px;border-radius:999px;font-weight:500;font-size:15px;border:1px solid var(--line-2);color:var(--fg);background:var(--glass);backdrop-filter:blur(12px);transition:transform .25s,border-color .25s,background .25s;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:var(--violet);transform:translateY(-1px)}
+.btn-solid{background:var(--fg);color:var(--ink);border-color:var(--fg)}
+.btn-solid:hover{background:#fff;box-shadow:0 0 40px rgba(156,124,255,.45)}
+.btn .dot{width:26px;height:26px;margin-right:-12px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--fg);font-size:13px;transition:transform .25s}
+.btn:hover .dot{transform:translateX(3px)}
+
+/* Nav */
+.nav{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 14px);left:0;right:0;padding-left:var(--gut);padding-right:var(--gut-r);pointer-events:none}
+.nav-in{pointer-events:auto;max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 10px 0 20px;border-radius:999px;border:1px solid var(--line);background:rgba(10,9,18,.55);backdrop-filter:blur(18px) saturate(140%)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:550;font-size:17px;letter-spacing:-.02em}
+.logo svg{flex:none}
+.logo b{font-weight:550;color:var(--violet)}
+.links{display:flex;gap:4px}
+.links a{padding:8px 14px;border-radius:999px;font-size:14px;color:var(--muted);transition:.2s}
+.links a:hover{color:var(--fg);background:var(--glass)}
+.nav-cta{display:flex;gap:8px}
+.nav-cta .btn{height:40px;padding:0 18px;font-size:14px}
+.menu-btn{display:none}
+
+/* Hero */
+.hero{position:relative;padding-top:calc(env(safe-area-inset-top,0px) + 150px);padding-bottom:90px;overflow:hidden;isolation:isolate}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.hero::after{content:"";position:absolute;inset:auto 0 0;height:180px;background:linear-gradient(transparent,var(--ink));z-index:-1;pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(46px,7.4vw,108px);font-weight:300;margin:22px 0 26px}
+.hero h1 em{font-size:1.05em;padding-right:.04em}
+.hero .sub{max-width:520px;font-size:18px;color:var(--muted)}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.hero-meta{display:flex;gap:40px;margin-top:64px;flex-wrap:wrap}
+.hero-meta div{display:grid;gap:2px}
+.hero-meta strong{font-size:30px;font-weight:300;letter-spacing:-.03em}
+.hero-meta span{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.rise{animation:rise 1.1s cubic-bezier(.2,.7,.1,1) both}
+.rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.18s}.rise.d3{animation-delay:.3s}.rise.d4{animation-delay:.45s}
+@keyframes rise{from{transform:translateY(22px);filter:blur(6px)}to{transform:none;filter:none}}
+
+/* Glass CFDI */
+.stage{perspective:1400px;display:flex;justify-content:center}
+.cfdi{--rx:8deg;--ry:-14deg;--charge:0;position:relative;width:min(440px,100%);padding:26px;border-radius:22px;border:1px solid rgba(220,205,255,.2);
+  background:linear-gradient(155deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 40%,rgba(156,124,255,.06));
+  backdrop-filter:blur(22px) saturate(150%);transform:rotateX(var(--rx)) rotateY(var(--ry));transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.1,1);
+  box-shadow:0 40px 120px -20px rgba(0,0,0,.7),0 0 calc(40px + var(--charge)*60px) rgba(156,124,255,calc(.18 + var(--charge)*.35)),inset 0 1px 0 rgba(255,255,255,.18)}
+.cfdi::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.10) 45%,transparent 60%);background-size:250% 100%;animation:sheen 7s linear infinite;pointer-events:none}
+@keyframes sheen{from{background-position:120% 0}to{background-position:-130% 0}}
+.cfdi-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;transform:translateZ(30px)}
+.cfdi-head h4{margin:0;font-size:13px;font-weight:500}
+.cfdi-head .mono{color:var(--muted);font-size:11px}
+.status{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-family:var(--f-mono);font-size:11px;border:1px solid var(--line-2);color:var(--muted);white-space:nowrap;transition:.3s}
+.status i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.status.ok{color:var(--mint);border-color:rgba(98,240,181,.4);background:rgba(98,240,181,.08)}
+.status.work i{animation:blink .7s infinite}
+@keyframes blink{50%{opacity:.2}}
+.party{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0 18px;padding:14px 0;border-block:1px dashed var(--line-2);transform:translateZ(20px)}
+.party span{display:block;font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.party b{display:block;font-weight:500;font-size:13px;line-height:1.35}
+.party small{font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.lines{display:grid;gap:10px;font-size:13px;transform:translateZ(14px)}
+.line{display:flex;justify-content:space-between;gap:12px}
+.line small{display:block;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.line b{font-weight:500;font-variant-numeric:tabular-nums}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-2);transform:translateZ(36px)}
+.total span{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.total b{font-size:28px;font-weight:300;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.seal{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin-top:18px;padding:12px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--line);transform:translateZ(24px)}
+.qr{width:58px;height:58px;border-radius:6px;background:#EFEBFA;padding:5px}
+.seal .mono{font-size:10px;line-height:1.5;color:var(--muted);word-break:break-all;min-width:0}
+.seal .mono b{color:var(--fg);font-weight:500}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;transform:translateZ(18px)}
+.chip{font-family:var(--f-mono);font-size:10.5px;padding:4px 9px;border-radius:999px;border:1px solid var(--line-2);color:var(--muted)}
+.chip.hl{color:var(--orchid);border-color:rgba(230,139,255,.4)}
+
+/* Ticker */
+.ticker{border-block:1px solid var(--line);overflow:hidden;padding:18px 0;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.ticker-track{display:flex;gap:56px;width:max-content;animation:tick 48s linear infinite}
+.ticker span{font-family:var(--f-mono);font-size:13px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:56px}
+.ticker span::after{content:"✦";color:var(--violet);font-size:10px}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* Sections */
+.sec{padding-block:140px}
+.sec-head{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;margin-bottom:64px}
+.sec-head h2{font-size:clamp(38px,5.4vw,76px);font-weight:300}
+.sec-head p{color:var(--muted);font-size:17px;max-width:470px;justify-self:end}
+
+/* Bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.cell{--mx:50%;--my:50%;position:relative;grid-column:span 2;padding:30px;border-radius:22px;border:1px solid var(--line);background:linear-gradient(180deg,var(--ink-2),var(--ink));overflow:hidden;min-height:250px;display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.cell::before{content:"";position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx) var(--my),rgba(156,124,255,.14),transparent 45%);opacity:0;transition:opacity .4s;pointer-events:none}
+.cell:hover::before{opacity:1}
+.cell.wide{grid-column:span 3}
+.cell h3{font-size:24px;font-weight:400;letter-spacing:-.02em;margin-bottom:8px}
+.cell p{color:var(--muted);font-size:15px;max-width:420px}
+.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--line-2);background:var(--glass);color:var(--violet)}
+.ico svg{width:22px;height:22px}
+.viz{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:grid;gap:7px}
+.viz .row{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.viz .row b{color:var(--fg);font-weight:500}
+.bar{height:6px;border-radius:9px;background:rgba(255,255,255,.06);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--violet),var(--orchid))}
+
+/* Logistics */
+.logi{position:relative;border-radius:32px;border:1px solid var(--line);background:radial-gradient(900px 500px at 85% 0%,rgba(156,124,255,.16),transparent 60%),radial-gradient(700px 400px at 0% 100%,rgba(230,139,255,.08),transparent 60%),var(--ink-2);padding:clamp(28px,5vw,72px);overflow:hidden}
+.logi-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
+.logi h2{font-size:clamp(36px,4.8vw,66px);font-weight:300;margin:20px 0 22px}
+.logi .lead{color:var(--muted);font-size:17px;max-width:500px}
+.steps{list-style:none;margin:40px 0 0;padding:0;display:grid;gap:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:14px;padding:16px 0;border-top:1px solid var(--line)}
+.steps li::before{content:"0" counter(s);font-family:var(--f-mono);font-size:12px;color:var(--violet);padding-top:3px}
+.steps b{font-weight:500;display:block}
+.steps span{color:var(--muted);font-size:14.5px}
+.map{position:relative;border-radius:22px;border:1px solid var(--line);background:rgba(0,0,0,.3);overflow:hidden}
+.map svg{display:block;width:100%;height:auto}
+.map-foot{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.map-foot div{padding:16px 18px;border-right:1px solid var(--line);min-width:0}
+.map-foot div:last-child{border-right:0}
+.map-foot span{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.map-foot b{font-weight:400;font-size:20px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.route{stroke-dasharray:4 7;animation:dash 1.6s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-22}}
+
+/* Pricing */
+.toggle{display:inline-flex;padding:4px;border-radius:999px;border:1px solid var(--line);background:var(--glass)}
+.toggle button{font:inherit;font-size:14px;border:0;background:none;color:var(--muted);padding:9px 18px;border-radius:999px;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--fg);color:var(--ink)}
+.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.plan{position:relative;display:flex;flex-direction:column;padding:30px 26px;border-radius:22px;border:1px solid var(--line);background:linear-gradient(180deg,var(--ink-2),var(--ink))}
+.plan.feat{border-color:transparent;background:linear-gradient(var(--ink-2),var(--ink-2)) padding-box,linear-gradient(160deg,var(--violet),rgba(230,139,255,.2) 50%,var(--line)) border-box;box-shadow:0 30px 90px -30px rgba(156,124,255,.5)}
+.plan .badge{position:absolute;top:22px;right:22px;font-family:var(--f-mono);font-size:10.5px;padding:4px 10px;border-radius:999px;background:rgba(156,124,255,.16);color:var(--violet)}
+.plan h3{font-size:22px;font-weight:400}
+.plan .desc{color:var(--muted);font-size:14px;margin-top:6px;min-height:44px}
+.price{margin:26px 0 4px;font-size:52px;font-weight:300;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.price small{font-size:14px;color:var(--muted);letter-spacing:0;font-weight:400}
+.price-note{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.plan ul{list-style:none;padding:0;margin:26px 0 30px;display:grid;gap:11px;font-size:14px;flex:1}
+.plan li{display:flex;gap:10px}
+.plan li::before{content:"";flex:none;width:16px;height:16px;margin-top:3px;border-radius:50%;background:radial-gradient(circle,var(--violet) 0 3px,transparent 4px),rgba(156,124,255,.12)}
+.plan .btn{justify-content:center}
+
+/* API */
+.api{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center}
+.api h2{font-size:clamp(36px,4.8vw,66px);font-weight:300;margin:20px 0 22px}
+.api .lead{color:var(--muted);font-size:17px;max-width:460px}
+.code{border-radius:20px;border:1px solid var(--line);background:#0A0913;overflow:hidden;box-shadow:0 40px 100px -40px rgba(156,124,255,.35);min-width:0}
+.code-top{display:flex;align-items:center;gap:6px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.code-top i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.12)}
+.tabs{margin-left:auto;display:flex;gap:2px}
+.tabs button{font-family:var(--f-mono);font-size:11.5px;background:none;border:0;color:var(--muted);padding:6px 10px;border-radius:8px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--fg);background:rgba(255,255,255,.06)}
+.code pre{margin:0;padding:22px;overflow-x:auto;font-family:var(--f-mono);font-size:12.5px;line-height:1.75;color:#CFC8E6}
+.k{color:var(--orchid)}.s{color:#A8F0D0}.n{color:#FFC98B}.c{color:#6E6890}
+
+/* FAQ */
+.faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px}
+.faq h2{font-size:clamp(38px,5vw,70px);font-weight:300}
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;padding:24px 0;font-size:19px;letter-spacing:-.01em}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--f-mono);color:var(--violet);transition:transform .3s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);padding:0 0 26px;max-width:620px}
+
+/* CTA */
+.cta{position:relative;border-radius:32px;overflow:hidden;border:1px solid var(--line);padding:clamp(28px,6vw,80px);background:radial-gradient(800px 420px at 50% 120%,rgba(156,124,255,.35),transparent 65%),radial-gradient(500px 300px at 100% 0%,rgba(230,139,255,.12),transparent 60%),var(--ink-2);display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.cta h2{font-size:clamp(40px,5.6vw,80px);font-weight:300}
+.cta .lead{color:var(--muted);margin-top:22px;max-width:440px}
+.contact-lines{display:grid;gap:6px;margin-top:28px;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.contact-lines b{color:var(--fg);font-weight:500;user-select:all}
+form{display:grid;gap:10px}
+.field{display:grid;gap:6px}
+.field label{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+input,select{font:inherit;font-size:15px;color:var(--fg);background:rgba(0,0,0,.3);border:1px solid var(--line-2);border-radius:12px;height:48px;padding:0 14px;width:100%;transition:border-color .2s}
+input:focus,select:focus{outline:none;border-color:var(--violet)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-msg{font-size:14px;color:var(--mint);min-height:20px}
+
+/* Footer */
+footer{padding-block:90px 30px;overflow:hidden}
+.foot{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px;font-size:14px}
+.foot h4{margin:0 0 14px;font-family:var(--f-mono);font-size:11px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.foot a{color:var(--fg);opacity:.8}.foot a:hover{opacity:1}
+.foot p{color:var(--muted);max-width:300px;margin-top:16px}
+.wordmark{font-size:clamp(64px,17vw,250px);font-weight:300;letter-spacing:-.06em;line-height:.85;margin:80px 0 24px;white-space:nowrap;background:linear-gradient(180deg,rgba(239,235,250,.16),rgba(239,235,250,0) 85%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none}
+.wordmark em{background:linear-gradient(180deg,rgba(156,124,255,.6),rgba(156,124,255,0) 90%);-webkit-background-clip:text;background-clip:text}
+.legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:22px}
+
+/* Responsive */
+@media (max-width:1060px){
+  .links{display:none}
+  .hero-grid,.logi-grid,.api,.faq,.cta,.sec-head{grid-template-columns:1fr}
+  .sec-head p{justify-self:start}
+  .bento{grid-template-columns:1fr 1fr}
+  .cell,.cell.wide{grid-column:span 1}
+  .plans{grid-template-columns:1fr 1fr}
+  .foot{grid-template-columns:1fr 1fr}
+  .cfdi{--rx:4deg;--ry:-6deg}
+}
+@media (max-width:640px){
+  .nav-cta .btn-ghost{display:none}
+  .hero{padding-top:calc(env(safe-area-inset-top,0px) + 120px)}
+  .hero-meta{gap:26px;margin-top:44px}
+  .sec{padding-block:96px}
+  .bento,.plans,.foot{grid-template-columns:1fr}
+  .row2{grid-template-columns:1fr}
+  .map-foot b{font-size:16px}
+  .party{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a href="#top" class="logo" aria-label="FacturasOne inicio">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EFEBFA"/><stop offset="1" stop-color="#9C7CFF"/></linearGradient></defs><circle cx="15" cy="15" r="13.5" fill="none" stroke="url(#lg)" stroke-width="1.2"/><circle cx="15" cy="15" r="9.5" fill="none" stroke="url(#lg)" stroke-width=".6" stroke-dasharray="1.5 2"/><path d="M13.2 10.4l3-1.9v12.9" fill="none" stroke="#EFEBFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Facturas<b>One</b></span>
+    </a>
+    <nav class="links" aria-label="Principal">
+      <a href="#producto">Producto</a>
+      <a href="#logistica">Carta Porte</a>
+      <a href="#precios">Precios</a>
+      <a href="#api">API</a>
+      <a href="#faq">Ayuda</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" data-app href="#">Entrar</a>
+      <a class="btn btn-solid" data-signup href="#">Prueba gratis</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero" id="hero">
+  <canvas id="fibers" aria-hidden="true"></canvas>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="tag rise">CFDI 4.0 · Carta Porte 3.1</span>
+      <h1 class="rise d1">Todo tu negocio,<br><em class="grad">en una sola</em> factura.</h1>
+      <p class="sub rise d2">Factura, timbra y envía tus CFDI en segundos. Con Carta Porte, complementos de pago y nómina, conectados directo a tu ERP de logística.</p>
+      <div class="ctas rise d3">
+        <a class="btn btn-solid" data-signup href="#">Crear cuenta gratis <span class="dot">→</span></a>
+        <a class="btn" href="#contacto">Hablar con un asesor</a>
+      </div>
+      <div class="hero-meta rise d4">
+        <div><strong>4.0</strong><span>CFDI vigente SAT</span></div>
+        <div><strong>3.1</strong><span>Carta Porte</span></div>
+        <div><strong>24/7</strong><span>En la nube</span></div>
+      </div>
+    </div>
+    <div class="stage rise d2">
+      <article class="cfdi" id="cfdi" aria-label="Ejemplo de factura timbrada">
+        <div class="cfdi-head">
+          <div><h4>Factura · Ingreso</h4><span class="mono">Serie A · Folio <span id="folio">1024</span></span></div>
+          <span class="status ok" id="status"><i></i><span>Timbrada</span></span>
+        </div>
+        <div class="party">
+          <div><span>Emisor</span><b>Transportes del Bajío</b><small>RFC TBA190312KX4</small></div>
+          <div><span>Receptor</span><b>Comercializadora Norte</b><small>Uso G03 · PPD</small></div>
+        </div>
+        <div class="lines">
+          <div class="line"><div>Flete GDL → CDMX<small>78101802 · E48</small></div><b>$18,500.00</b></div>
+          <div class="line"><div>Maniobras de carga<small>78101802 · E48</small></div><b>$2,300.00</b></div>
+          <div class="line"><div>IVA 16% · Ret. IVA 4%<small>002 · Tasa</small></div><b>$2,496.00</b></div>
+        </div>
+        <div class="total"><span>Total MXN</span><b>$23,296.00</b></div>
+        <div class="seal">
+          <svg class="qr" viewBox="0 0 21 21" aria-hidden="true" shape-rendering="crispEdges" id="qr"></svg>
+          <div class="mono"><b>UUID</b> <span id="uuid">6F9A2C1E-4B7D-4E21-9C3A-8D5F0B7E12A4</span><br><b>Sello SAT</b> <span id="sello">kQ3v9Lm2xP8tR1nZ…</span></div>
+        </div>
+        <div class="chips"><span class="chip hl">Carta Porte 3.1</span><span class="chip">PUE</span><span class="chip">Enviada por correo</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>Ingreso</span><span>Egreso</span><span>Traslado</span><span>Recepción de pagos 2.0</span><span>Carta Porte 3.1</span><span>Nómina 1.2</span><span>Comercio exterior 2.0</span><span>Retenciones 2.0</span><span>Cancelación con motivo 01–04</span><span>Facturación global</span>
+    <span>Ingreso</span><span>Egreso</span><span>Traslado</span><span>Recepción de pagos 2.0</span><span>Carta Porte 3.1</span><span>Nómina 1.2</span><span>Comercio exterior 2.0</span><span>Retenciones 2.0</span><span>Cancelación con motivo 01–04</span><span>Facturación global</span>
+  </div>
+</div>
+
+<section class="sec" id="producto">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="tag">Producto</span><h2 style="margin-top:20px">Un sello.<br><em>Todos</em> tus comprobantes.</h2></div>
+      <p>Desde tu primera factura hasta miles de CFDI al mes. Cada comprobante se valida contra los catálogos del SAT antes de timbrarse, para que no regrese con errores.</p>
+    </div>
+    <div class="bento">
+      <div class="cell wide">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/></svg></div>
+        <div><h3>Facturas CFDI 4.0</h3><p>Ingresos, egresos y traslados con validación automática de RFC, régimen fiscal y código postal del receptor.</p></div>
+        <div class="viz">
+          <div class="row"><span>RFC receptor</span><b>CNO2104157H2 ✓</b></div>
+          <div class="row"><span>Régimen fiscal</span><b>601 General de Ley ✓</b></div>
+        </div>
+      </div>
+      <div class="cell wide">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div>
+        <div><h3>Complementos de pago</h3><p>Emite el REP 2.0 de cada factura en PPD y ve en todo momento cuánto te debe cada cliente.</p></div>
+        <div class="viz">
+          <div style="display:flex;justify-content:space-between"><span>Cobrado este mes</span><b style="color:var(--fg)">72%</b></div>
+          <div class="bar"><i style="width:72%"></i></div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.2 6-5.2s5.4 1.8 6 5.2M16 5.2a3 3 0 010 5.6M18 14.8c1.6.6 2.7 2.3 3 5.2"/></svg></div>
+        <div><h3>Nómina</h3><p>Timbra recibos 1.2 para tu personal y operadores, con percepciones y deducciones.</p></div>
+      </div>
+      <div class="cell">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z"/></svg></div>
+        <div><h3>Autofacturación</h3><p>Tus clientes generan su factura con el número de ticket desde un portal con tu marca.</p></div>
+      </div>
+      <div class="cell">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 3l4 4-4 4M21 7H8a5 5 0 000 10h1M7 21l-4-4 4-4M3 17h13a5 5 0 000-10h-1"/></svg></div>
+        <div><h3>Facturas recurrentes</h3><p>Programa rentas, igualas y servicios mensuales una vez y se emiten solas.</p></div>
+      </div>
+      <div class="cell">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V10l8-6 8 6v10M9 20v-6h6v6"/></svg></div>
+        <div><h3>Multiempresa</h3><p>Varios RFC en una cuenta y permisos por usuario para contabilidad y operaciones.</p></div>
+      </div>
+      <div class="cell">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg></div>
+        <div><h3>Cancelaciones</h3><p>Cancela con los motivos 01 a 04 del SAT y da seguimiento a la aceptación del receptor.</p></div>
+      </div>
+      <div class="cell">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6"/></svg></div>
+        <div><h3>Reportes y descargas</h3><p>XML y PDF en lote, exportación a Excel y filtros por cliente, periodo y estatus.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="logistica" style="padding-top:0">
+  <div class="wrap">
+    <div class="logi">
+      <div class="logi-grid">
+        <div>
+          <span class="tag">Hecho para transporte</span>
+          <h2>Del viaje a la <em class="grad">Carta Porte</em>, sin capturar dos veces.</h2>
+          <p class="lead">FacturasOne viene del mismo equipo que desarrolla nuestro ERP de logística. Los viajes, clientes y tarifas que ya registras se convierten en facturas con su complemento listo.</p>
+          <ol class="steps">
+            <li><div><b>Registras el viaje en el ERP</b><span>Origen, destino, mercancía, unidad y operador.</span></div></li>
+            <li><div><b>Se arma la Carta Porte</b><span>Validada contra catálogos de mercancías, embalajes y configuración vehicular.</span></div></li>
+            <li><div><b>Se timbra el CFDI</b><span>Con retención de IVA de fletes calculada automáticamente.</span></div></li>
+            <li><div><b>Tu cliente recibe XML y PDF</b><span>Y la cobranza se sincroniza con tu ERP.</span></div></li>
+          </ol>
+        </div>
+        <div class="map">
+          <svg viewBox="0 0 600 400" role="img" aria-label="Ruta de ejemplo Guadalajara, Querétaro, Ciudad de México">
+            <defs>
+              <pattern id="gridp" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#EFEBFA" fill-opacity=".09"/></pattern>
+              <linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#9C7CFF"/><stop offset="1" stop-color="#E68BFF"/></linearGradient>
+              <radialGradient id="glow"><stop offset="0" stop-color="#E68BFF" stop-opacity=".9"/><stop offset="1" stop-color="#E68BFF" stop-opacity="0"/></radialGradient>
+            </defs>
+            <rect width="600" height="400" fill="url(#gridp)"/>
+            <path d="M40 120 C120 90 170 70 230 90 S330 150 380 130 S470 90 560 120" fill="none" stroke="#EFEBFA" stroke-opacity=".06" stroke-width="1"/>
+            <path d="M30 300 C140 280 200 330 300 310 S470 260 580 300" fill="none" stroke="#EFEBFA" stroke-opacity=".06" stroke-width="1"/>
+            <path id="rt" d="M110 250 C180 200 230 175 300 170 S400 205 470 220" fill="none" stroke="url(#rg)" stroke-width="2" class="route"/>
+            <g font-family="Geist Mono, monospace" font-size="11" fill="#9D96B8">
+              <circle cx="110" cy="250" r="5" fill="#9C7CFF"/><circle cx="110" cy="250" r="12" fill="none" stroke="#9C7CFF" stroke-opacity=".4"/>
+              <text x="70" y="282" fill="#EFEBFA">GUADALAJARA</text><text x="70" y="298">20.6597° N · Origen</text>
+              <circle cx="300" cy="170" r="4" fill="#EFEBFA"/>
+              <text x="262" y="148" fill="#EFEBFA">QUERÉTARO</text><text x="262" y="132">Escala</text>
+              <circle cx="470" cy="220" r="5" fill="#E68BFF"/><circle cx="470" cy="220" r="12" fill="none" stroke="#E68BFF" stroke-opacity=".4"/>
+              <text x="420" y="252" fill="#EFEBFA">CDMX</text><text x="420" y="268">19.4326° N · Destino</text>
+            </g>
+            <g>
+              <circle r="18" fill="url(#glow)"><animateMotion dur="7s" repeatCount="indefinite" rotate="auto"><mpath href="#rt"/></animateMotion></circle>
+              <circle r="4" fill="#fff"><animateMotion dur="7s" repeatCount="indefinite"><mpath href="#rt"/></animateMotion></circle>
+            </g>
+            <g font-family="Geist Mono, monospace" font-size="10.5">
+              <rect x="24" y="24" width="250" height="78" rx="10" fill="#07060D" fill-opacity=".7" stroke="#EFEBFA" stroke-opacity=".12"/>
+              <text x="40" y="47" fill="#E68BFF">cartaporte31:CartaPorte</text>
+              <text x="40" y="66" fill="#9D96B8">IdCCP <tspan fill="#EFEBFA">CCC5C1F9-…-4E21</tspan></text>
+              <text x="40" y="84" fill="#9D96B8">TranspInternac <tspan fill="#EFEBFA">No</tspan></text>
+            </g>
+          </svg>
+          <div class="map-foot">
+            <div><span>Distancia</span><b>541 km</b></div>
+            <div><span>Peso bruto</span><b>18,400 kg</b></div>
+            <div><span>Config. vehicular</span><b>T3S2</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="precios" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="tag">Precios</span><h2 style="margin-top:20px">Paga por lo que<br><em>facturas</em>.</h2></div>
+      <div style="justify-self:end;display:grid;gap:16px;justify-items:start">
+        <p style="color:var(--muted);font-size:17px;max-width:440px">Precios en pesos mexicanos, más IVA. Sube o baja de plan cuando quieras sin perder tu información.</p>
+        <div class="toggle" role="group" aria-label="Periodo de pago">
+          <button type="button" data-period="m" aria-pressed="true">Mensual</button>
+          <button type="button" data-period="y" aria-pressed="false">Anual · 2 meses gratis</button>
+        </div>
+      </div>
+    </div>
+    <div class="plans" id="plans"></div>
+  </div>
+</section>
+
+<section class="sec" id="api" style="padding-top:40px">
+  <div class="wrap api">
+    <div>
+      <span class="tag">Para desarrolladores</span>
+      <h2>Factura desde <em>tu</em> sistema.</h2>
+      <p class="lead">Conecta tu e-commerce, punto de venta o software propio con nuestra API REST. Ambiente de pruebas, ejemplos en varios lenguajes y soporte técnico directo.</p>
+      <div style="margin-top:32px"><a class="btn" href="#contacto">Solicitar llaves de API <span class="dot">→</span></a></div>
+    </div>
+    <div class="code">
+      <div class="code-top"><i></i><i></i><i></i>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true" data-lang="curl">cURL</button>
+          <button role="tab" aria-selected="false" data-lang="js">Node.js</button>
+          <button role="tab" aria-selected="false" data-lang="py">Python</button>
+        </div>
+      </div>
+      <pre id="codeblock"></pre>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq" style="padding-top:40px">
+  <div class="wrap faq">
+    <div><span class="tag">Ayuda</span><h2 style="margin-top:20px">Preguntas<br><em>frecuentes</em></h2></div>
+    <div>
+      <details open><summary>¿Qué necesito para empezar a facturar?</summary><p>Tu RFC, tu Certificado de Sello Digital (archivos .cer y .key) con su contraseña, y los datos fiscales de tus clientes: RFC, razón social, régimen fiscal y código postal.</p></details>
+      <details><summary>¿Qué es un folio?</summary><p>Cada CFDI que timbras consume un folio: facturas, notas de crédito, complementos de pago, recibos de nómina y Cartas Porte.</p></details>
+      <details><summary>¿Mis facturas son válidas ante el SAT?</summary><p>Sí. Todos los comprobantes se timbran con un Proveedor Autorizado de Certificación (PAC) y puedes verificarlos en el portal del SAT.</p></details>
+      <details><summary>¿Puedo facturar desde mi ERP de logística?</summary><p>Sí. Si usas nuestro ERP, la factura y la Carta Porte salen de cada viaje. Si usas otro sistema, lo conectas con la API.</p></details>
+      <details><summary>¿Qué pasa si se me acaban los folios?</summary><p>Compras un paquete adicional o subes de plan en cualquier momento. Tu historial y tus clientes se quedan igual.</p></details>
+      <details><summary>¿Cómo es el soporte?</summary><p>Por WhatsApp, correo y teléfono, con asesores que conocen la facturación y el transporte en México.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="contacto" style="padding-top:20px">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Tu próxima factura,<br><em class="grad">en FacturasOne</em>.</h2>
+        <p class="lead">Déjanos tus datos y un asesor te ayuda a activar tu cuenta, cargar tu CSD y conectar tu ERP.</p>
+        <div class="contact-lines">
+          <span>Correo · <b data-email></b></span>
+          <span>WhatsApp · <b data-wa-text></b></span>
+        </div>
+      </div>
+      <form id="lead" novalidate>
+        <div class="row2">
+          <div class="field"><label for="f-nombre">Nombre</label><input id="f-nombre" name="nombre" autocomplete="name" required></div>
+          <div class="field"><label for="f-empresa">Empresa o RFC</label><input id="f-empresa" name="empresa" autocomplete="organization"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="f-email">Correo</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="f-tel">WhatsApp</label><input id="f-tel" name="telefono" type="tel" autocomplete="tel"></div>
+        </div>
+        <div class="field"><label for="f-interes">Me interesa</label>
+          <select id="f-interes" name="interes">
+            <option>Empezar a facturar</option>
+            <option>Carta Porte para mi flotilla</option>
+            <option>Conectar el ERP de logística</option>
+            <option>Acceso a la API</option>
+          </select>
+        </div>
+        <button class="btn btn-solid" type="submit" style="justify-content:center;margin-top:6px">Quiero que me contacten <span class="dot">→</span></button>
+        <p class="form-msg" id="form-msg" role="status"></p>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a href="#top" class="logo"><span>Facturas<b>One</b></span></a>
+        <p>Facturación electrónica CFDI 4.0 y Carta Porte para empresas en México.</p>
+      </div>
+      <div><h4>Producto</h4><ul><li><a href="#producto">Funciones</a></li><li><a href="#logistica">Carta Porte</a></li><li><a href="#precios">Precios</a></li><li><a href="#api">API</a></li></ul></div>
+      <div><h4>Cuenta</h4><ul><li><a data-app href="#">Entrar</a></li><li><a data-signup href="#">Crear cuenta</a></li><li><a href="#contacto">Contacto</a></li></ul></div>
+      <div><h4>Legal</h4><ul><li><a href="aviso-de-privacidad.html">Aviso de privacidad</a></li><li><a href="terminos.html">Términos y condiciones</a></li></ul></div>
+    </div>
+    <div class="wordmark" aria-hidden="true">Facturas<em>One</em></div>
+    <div class="legal"><span>© <span id="yr">2026</span> FacturasOne</span><span>Timbrado con Proveedor Autorizado de Certificación</span></div>
+  </div>
+</footer>
+
+<script>
+/* ===================== CONFIGURACIÓN · EDITA AQUÍ ===================== */
+const CONFIG = {
+  appUrl:    "https://app.facturasone.com",           // login de la plataforma
+  signupUrl: "https://app.facturasone.com/registro",  // registro
+  email:     "contacto@facturasone.com",
+  whatsapp:  "52 00 0000 0000",
+  formEndpoint: "",                                    // URL que recibe el formulario
+  plans: [  // PRECIOS DE EJEMPLO: reemplazar por los reales
+    {name:"Emprendedor", desc:"Para quien empieza a facturar.", m:99, folios:"15 folios al mes",
+     f:["1 RFC emisor","Facturas, notas y REP","Web y celular","Soporte por correo"]},
+    {name:"Pyme", desc:"Para negocios con facturación constante.", m:249, folios:"60 folios al mes",
+     f:["3 usuarios","Facturas recurrentes","Portal de autofacturación","Soporte por WhatsApp"]},
+    {name:"Transportista", desc:"Carta Porte y fletes desde tu ERP.", m:549, folios:"200 folios al mes", feat:true,
+     f:["Carta Porte 3.1","Retenciones de fletes","Conexión con el ERP","5 usuarios","Soporte prioritario"]},
+    {name:"Empresarial", desc:"Alto volumen, multiempresa y API.", m:null, folios:"Folios a la medida",
+     f:["RFC y usuarios ilimitados","API REST y sandbox","Nómina","Ejecutivo de cuenta"]}
+  ]
+};
+/* ====================================================================== */
+
+const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+$$("[data-app]").forEach(a => a.href = CONFIG.appUrl);
+$$("[data-signup]").forEach(a => a.href = CONFIG.signupUrl);
+$$("[data-email]").forEach(e => e.textContent = CONFIG.email);
+$$("[data-wa-text]").forEach(e => e.textContent = CONFIG.whatsapp);
+$("#yr").textContent = new Date().getFullYear();
+
+/* Plans */
+const money = n => "$" + n.toLocaleString("es-MX");
+function plans(p){
+  $("#plans").innerHTML = CONFIG.plans.map(x => {
+    const price = x.m == null ? `<div class="price" style="font-size:40px">A la medida</div><div class="price-note">Cotización según volumen</div>`
+      : p === "y" ? `<div class="price">${money(x.m*10)}<small> /año</small></div><div class="price-note">Equivale a ${money(Math.round(x.m*10/12))} al mes</div>`
+      : `<div class="price">${money(x.m)}<small> /mes</small></div><div class="price-note">Más IVA</div>`;
+    return `<div class="plan${x.feat?" feat":""}">${x.feat?'<span class="badge">Para logística</span>':""}
+      <h3>${x.name}</h3><p class="desc">${x.desc}</p>${price}
+      <ul><li><b style="font-weight:500">${x.folios}</b></li>${x.f.map(i=>`<li>${i}</li>`).join("")}</ul>
+      <a class="btn ${x.feat?"btn-solid":""}" href="${x.m==null?"#contacto":CONFIG.signupUrl}">${x.m==null?"Hablar con ventas":"Comenzar"}</a></div>`;
+  }).join("");
+}
+$$(".toggle button").forEach(b => b.onclick = () => {
+  $$(".toggle button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  plans(b.dataset.period);
+});
+plans("m");
+
+/* Code tabs */
+const CODE = {
+curl:`<span class="c"># Timbrar una factura CFDI 4.0</span>
+curl -X POST <span class="s">"$FACTURASONE_API/v4/cfdi40/create"</span> \\
+  -H <span class="s">"F-Api-Key: $API_KEY"</span> \\
+  -H <span class="s">"F-Secret-Key: $SECRET_KEY"</span> \\
+  -d <span class="s">'{
+    "Receptor": { "UID": "cli_8x21" },
+    "TipoDocumento": "factura",
+    "UsoCFDI": "G03", "FormaPago": "03",
+    "MetodoPago": "PUE", "Moneda": "MXN",
+    "Conceptos": [{
+      "ClaveProdServ": "78101802",
+      "ClaveUnidad": "E48", "Cantidad": 1,
+      "Descripcion": "Flete GDL → CDMX",
+      "ValorUnitario": 18500
+    }]
+  }'</span>`,
+js:`<span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">\`\${API}/v4/cfdi40/create\`</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: { <span class="s">"F-Api-Key"</span>: key, <span class="s">"F-Secret-Key"</span>: secret },
+  body: JSON.stringify({
+    Receptor: { UID: <span class="s">"cli_8x21"</span> },
+    TipoDocumento: <span class="s">"factura"</span>,
+    UsoCFDI: <span class="s">"G03"</span>, MetodoPago: <span class="s">"PUE"</span>,
+    Conceptos: [{ ClaveProdServ: <span class="s">"78101802"</span>,
+      Cantidad: <span class="n">1</span>, ValorUnitario: <span class="n">18500</span> }]
+  })
+});
+<span class="k">const</span> { UUID } = <span class="k">await</span> res.json();  <span class="c">// timbrada ✓</span>`,
+py:`<span class="k">import</span> requests
+
+r = requests.post(<span class="s">f"{API}/v4/cfdi40/create"</span>,
+    headers={<span class="s">"F-Api-Key"</span>: KEY, <span class="s">"F-Secret-Key"</span>: SECRET},
+    json={
+        <span class="s">"Receptor"</span>: {<span class="s">"UID"</span>: <span class="s">"cli_8x21"</span>},
+        <span class="s">"TipoDocumento"</span>: <span class="s">"factura"</span>,
+        <span class="s">"UsoCFDI"</span>: <span class="s">"G03"</span>,
+        <span class="s">"Conceptos"</span>: [{<span class="s">"ClaveProdServ"</span>: <span class="s">"78101802"</span>,
+                       <span class="s">"Cantidad"</span>: <span class="n">1</span>, <span class="s">"ValorUnitario"</span>: <span class="n">18500</span>}],
+    })
+print(r.json()[<span class="s">"UUID"</span>])  <span class="c"># timbrada ✓</span>`};
+function showCode(l){ $("#codeblock").innerHTML = CODE[l]; $$(".tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.lang === l)); }
+$$(".tabs button").forEach(b => b.onclick = () => showCode(b.dataset.lang));
+showCode("curl");
+
+/* Bento spotlight */
+$$(".cell").forEach(c => c.addEventListener("pointermove", e => {
+  const r = c.getBoundingClientRect();
+  c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px");
+}));
+
+/* Form */
+$("#lead").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, msg = $("#form-msg");
+  if (!f.nombre.value.trim() || !f.email.validity.valid || !f.email.value) { msg.style.color = "var(--orchid)"; msg.textContent = "Escribe tu nombre y un correo válido para poder contactarte."; return; }
+  if (!CONFIG.formEndpoint) { msg.style.color = "var(--muted)"; msg.textContent = `Escríbenos a ${CONFIG.email} o por WhatsApp al ${CONFIG.whatsapp}.`; return; }
+  try {
+    const r = await fetch(CONFIG.formEndpoint, {method:"POST", headers:{"Content-Type":"application/json", Accept:"application/json"}, body:JSON.stringify(Object.fromEntries(new FormData(f)))});
+    if (!r.ok) throw 0;
+    msg.style.color = "var(--mint)"; msg.textContent = "Recibimos tus datos. Un asesor te contactará en horario de oficina."; f.reset();
+  } catch { msg.style.color = "var(--orchid)"; msg.textContent = `No se pudo enviar. Escríbenos a ${CONFIG.email}.`; }
+});
+
+/* QR-like seal matrix (decorative) */
+(function(){
+  const q = $("#qr"); let s = "", seed = 7;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const finder = (x,y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#07060D"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#EFEBFA"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#07060D"/>`;
+  for (let y=0;y<21;y++) for (let x=0;x<21;x++){
+    const inF = (x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12);
+    if (!inF && rnd() > .52) s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#07060D"/>`;
+  }
+  q.innerHTML = s + finder(0,0) + finder(14,0) + finder(0,14);
+})();
+
+/* CFDI live stamping loop */
+const card = $("#cfdi"), st = $("#status");
+let charge = 0;
+(function(){
+  if (reduce) return;
+  const hex = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2,"0")).join("").toUpperCase();
+  const b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let folio = 1024;
+  const phases = [["work","Validando"],["work","Sellando"],["ok","Timbrada"]];
+  function cycle(){
+    let i = 0;
+    const step = () => {
+      const [cls, txt] = phases[i];
+      st.className = "status " + cls; st.lastElementChild.textContent = txt;
+      if (cls === "ok") {
+        folio++; $("#folio").textContent = folio;
+        const h = hex(16); $("#uuid").textContent = `${h.slice(0,8)}-${h.slice(8,12)}-4${h.slice(13,16)}-${h.slice(16,20)}-${h.slice(20,32)}`;
+        $("#sello").textContent = Array.from({length:16},()=>b64[Math.random()*64|0]).join("") + "…";
+        charge = 1;
+      }
+      if (++i < phases.length) setTimeout(step, 900); else setTimeout(cycle, 4200);
+    };
+    step();
+  }
+  setTimeout(cycle, 2600);
+  /* tilt */
+  const stage = card.parentElement;
+  stage.addEventListener("pointermove", e => {
+    const r = stage.getBoundingClientRect(), x = (e.clientX - r.left)/r.width - .5, y = (e.clientY - r.top)/r.height - .5;
+    card.style.setProperty("--ry", (x*22 - 6) + "deg"); card.style.setProperty("--rx", (-y*16 + 4) + "deg");
+  });
+  stage.addEventListener("pointerleave", () => { card.style.removeProperty("--ry"); card.style.removeProperty("--rx"); });
+})();
+
+/* Light fibers converging into the CFDI */
+(function(){
+  const hero = $("#hero"), cv = $("#fibers"), ctx = cv.getContext("2d");
+  let W, H, dpr, T = {x:0,y:0,h:0}, fibers = [], pulses = [], grad, mouse = {x:.5,y:.5}, t0 = performance.now();
+  function layout(){
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    const hr = hero.getBoundingClientRect(), cr = card.getBoundingClientRect();
+    W = hr.width; H = hr.height;
+    cv.width = W*dpr; cv.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    const narrow = W < 1060;
+    T = narrow ? {x: cr.left - hr.left + cr.width/2, y: cr.top - hr.top + 30, h: 40, narrow}
+               : {x: cr.left - hr.left + 30, y: cr.top - hr.top + cr.height/2, h: cr.height*.5, narrow};
+    const n = W < 640 ? 70 : 150;
+    fibers = Array.from({length:n}, (_, i) => {
+      const u = i/(n-1);
+      const o = narrow ? {x: -80 + u*(W+160), y: -60} : {x: -60, y: -H*.35 + u*H*1.7};
+      return {o, u, ph: Math.random()*6.28, sp: .25 + Math.random()*.5, amp: 30 + Math.random()*90,
+              a: .05 + Math.pow(Math.random(),2)*.38, w: .5 + Math.random()*.9, end: (u-.5)};
+    });
+    grad = narrow ? ctx.createLinearGradient(0,0,0,T.y) : ctx.createLinearGradient(0,0,T.x,0);
+    grad.addColorStop(0,"rgba(156,124,255,0)"); grad.addColorStop(.45,"rgba(156,124,255,.55)");
+    grad.addColorStop(.85,"rgba(214,150,255,.95)"); grad.addColorStop(1,"rgba(255,255,255,1)");
+    pulses = Array.from({length: W < 640 ? 14 : 34}, () => ({f: Math.random()*n|0, t: Math.random(), v: .0025 + Math.random()*.004}));
+  }
+  function pts(f, time){
+    const {o} = f, mx = (mouse.x-.5), my = (mouse.y-.5);
+    const s = Math.sin(time*f.sp + f.ph), c = Math.cos(time*f.sp*.7 + f.ph);
+    const ex = T.narrow ? T.x + f.end*120 : T.x, ey = T.narrow ? T.y : T.y + f.end*T.h;
+    if (T.narrow) return [o.x, o.y, o.x + (ex-o.x)*.2 + s*f.amp*.6, o.y + (ey-o.y)*.45, ex + (o.x-ex)*.12 + c*f.amp*.25, ey - 40, ex, ey];
+    return [o.x, o.y, o.x + (ex-o.x)*.45, o.y + s*f.amp + my*80, ex - (ex-o.x)*.22, ey + (o.y-ey)*.08 + c*f.amp*.3 + my*30 + mx*20, ex, ey];
+  }
+  const bz = (p, t) => { const m = 1-t; return [m*m*m*p[0]+3*m*m*t*p[2]+3*m*t*t*p[4]+t*t*t*p[6], m*m*m*p[1]+3*m*m*t*p[3]+3*m*t*t*p[5]+t*t*t*p[7]]; };
+  function frame(now){
+    const time = (now - t0)/1000;
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = grad;
+    const P = fibers.map(f => pts(f, time));
+    fibers.forEach((f, i) => {
+      const p = P[i]; ctx.globalAlpha = f.a; ctx.lineWidth = f.w;
+      ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.bezierCurveTo(p[2],p[3],p[4],p[5],p[6],p[7]); ctx.stroke();
+    });
+    // focal bloom
+    const g = ctx.createRadialGradient(T.x, T.y, 0, T.x, T.y, 160 + charge*120);
+    g.addColorStop(0, `rgba(230,180,255,${.35 + charge*.4})`); g.addColorStop(1, "rgba(156,124,255,0)");
+    ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(T.x-300, T.y-300, 600, 600);
+    if (!reduce) for (const q of pulses){
+      q.t += q.v; if (q.t >= 1){ q.t = 0; q.f = Math.random()*fibers.length|0; charge = Math.min(1, charge + .04); }
+      const [x,y] = bz(P[q.f], q.t), a = Math.sin(q.t*Math.PI);
+      ctx.globalAlpha = a*.9; ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x,y,1.3,0,7); ctx.fill();
+      ctx.globalAlpha = a*.35; ctx.fillStyle = "#E68BFF"; ctx.beginPath(); ctx.arc(x,y,5,0,7); ctx.fill();
+    }
+    charge *= .985; card.style.setProperty("--charge", charge.toFixed(3));
+    if (!reduce && visible) requestAnimationFrame(frame);
+  }
+  let visible = true;
+  new IntersectionObserver(([e]) => { const was = visible; visible = e.isIntersecting; if (visible && !was && !reduce) requestAnimationFrame(frame); }).observe(hero);
+  hero.addEventListener("pointermove", e => { const r = hero.getBoundingClientRect(); mouse = {x:(e.clientX-r.left)/r.width, y:(e.clientY-r.top)/r.height}; });
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { layout(); if (reduce) frame(t0); }, 120); });
+  // wait one tick so the card's 3D transform and fonts settle before measuring
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { layout(); requestAnimationFrame(frame); });
+})();
+</script>
+</body>
+</html>
